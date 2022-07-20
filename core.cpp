@@ -97,7 +97,6 @@ int at(const int i, const int j) {
     if(i<0 || j < 0 || i >= cell_height_num || j >= cell_width_num) {
         return 0;
     }
-
     return tile[i][j];
 }
 
@@ -115,14 +114,42 @@ bool is_rule1(const int i, const int j) {
 }
 
 bool is_rule2(const int i, const int j) {
+    int alive_count = 0;
+    for(auto direction : directions) {
+        alive_count += at(i + direction.x, j + direction.y);
+    }
 
-
+    if(alive_count == 2 || alive_count == 3) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool is_rule3(const int i, const int j) {
+    int alive_count = 0;
+    for(auto direction : directions) {
+        alive_count += at(i + direction.x, j + direction.y);
+    }
+
+    if(alive_count < 2) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool is_rule4(const int i, const int j) {
+    int alive_count = 0;
+    for(auto direction : directions) {
+        alive_count += at(i + direction.x, j + direction.y);
+    }
+
+    if(alive_count >= 4) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int dead_or_alive(const int i, const int j)
@@ -145,11 +172,15 @@ int dead_or_alive(const int i, const int j)
 
     return 0;
     **/
-    if(is_rule1(i, j)) {
+    if(is_rule1(i, j) || is_rule2(i, j)) {
         return 1;
-    } else {
+    }
+
+    if(is_rule3(i, j) || is_rule4(i, j)) {
         return 0;
     }
+    
+    return 0;
 }
 
 void update_cells()
