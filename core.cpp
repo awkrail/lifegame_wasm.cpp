@@ -2,6 +2,7 @@
 #include <emscripten.h>
 #include <cstdlib>
 #include <vector>
+#include <unistd.h>
 
 struct context
 {
@@ -15,6 +16,12 @@ struct Color
     int green;
     int blue;
     int alpha;
+};
+
+struct Direction
+{
+    int x;
+    int y;
 };
 
 const int cell_width = 30;
@@ -35,6 +42,17 @@ std::vector<std::vector<int>> tile = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
+std::vector<Direction> directions = {
+    Direction {-1, -1},
+    Direction {0, -1},
+    Direction {1, -1},
+    Direction {-1, 0},
+    Direction {1, 0},
+    Direction {-1, 1},
+    Direction {0, 1},
+    Direction {1, 1}
+};
+
 void draw_background(SDL_Renderer* renderer) 
 {
     Color bg_c {255, 255, 255, 255};
@@ -52,7 +70,7 @@ void draw_background(SDL_Renderer* renderer)
     SDL_RenderPresent(renderer);
 }
 
-void draw_cell(SDL_Renderer* renderer, int i, int j) {
+void draw_cell(SDL_Renderer* renderer, const int i, const int j) {
     if(tile[i][j] == 1) {
         Color cell_c {0, 0, 0, 255};
         SDL_Rect r;
@@ -75,6 +93,87 @@ void draw_cells(SDL_Renderer* renderer)
     }
 }
 
+int at(const int i, const int j) {
+    if(i<0 || j < 0 || i >= cell_height_num || j >= cell_width_num) {
+        return 0;
+    }
+
+    return tile[i][j];
+}
+
+bool is_rule1(const int i, const int j) {
+    int alive_count = 0;
+    for(auto direction : directions) {
+        alive_count += at(i + direction.x, j + direction.y);
+    }
+
+    if(alive_count == 3) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_rule2(const int i, const int j) {
+
+
+}
+
+bool is_rule3(const int i, const int j) {
+}
+
+bool is_rule4(const int i, const int j) {
+}
+
+int dead_or_alive(const int i, const int j)
+{
+    /**
+     * Rule 1: New cells will be birth if surrounding three cells are alive
+     * Rule 2: Cells touching more than two cells (>=2) will be alive
+     * Rule 3: Cells touching less than two cells (<2) will be dead
+     * Rule 4: Cells touching more than three cells (>=4) will be dead
+    **/
+
+    /**
+    if(is_rule1(i, j) || is_rule2(i, j)) {
+        return 1;
+    }
+
+    if(is_rule3(i, j) || is_rule4(i, j)) {
+        return 0;
+    }
+
+    return 0;
+    **/
+    if(is_rule1(i, j)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void update_cells()
+{
+    // check status of cells in the next generation
+    std::vector<std::vector<int>> is_alive = tile;
+    for(int i=0; i!=cell_width_num; ++i) {
+        for(int j=0; j!=cell_height_num; ++j) {
+            is_alive[i][j] = dead_or_alive(i, j);
+        }
+    }
+    
+    // update cells
+    for(int i=0; i!=cell_width_num; ++i) {
+        for(int j=0; j!=cell_height_num; ++j) {
+            if(is_alive[i][j]) {
+                tile[i][j] = 1;
+            } else {
+                tile[i][j] = 0;
+            }
+        }
+    }
+}
+
 void mainloop(void *arg)
 {
     context *ctx = static_cast<context*>(arg);
@@ -87,8 +186,10 @@ void mainloop(void *arg)
     draw_cells(renderer);
     
     // update cell states 
+    update_cells();
 
     ctx->iteration++;
+    sleep(1);
 }
 
 int main()
