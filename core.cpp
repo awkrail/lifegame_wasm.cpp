@@ -52,6 +52,29 @@ void draw_background(SDL_Renderer* renderer)
     SDL_RenderPresent(renderer);
 }
 
+void draw_cell(SDL_Renderer* renderer, int i, int j) {
+    if(tile[i][j] == 1) {
+        Color cell_c {0, 0, 0, 255};
+        SDL_Rect r;
+        r.x = j * cell_width;
+        r.y = i * cell_height;
+        r.w = cell_width;
+        r.h = cell_height;
+        SDL_SetRenderDrawColor(renderer, cell_c.red, cell_c.green, cell_c.blue, cell_c.alpha);
+        SDL_RenderFillRect(renderer, &r);
+        SDL_RenderPresent(renderer);
+    } 
+}
+
+void draw_cells(SDL_Renderer* renderer)
+{
+    for(int i=0; i!=cell_width_num; ++i) {
+        for(int j=0; j!=cell_height_num; ++j) {
+            draw_cell(renderer, i, j);
+        }
+    }
+}
+
 void mainloop(void *arg)
 {
     context *ctx = static_cast<context*>(arg);
@@ -60,17 +83,10 @@ void mainloop(void *arg)
     // background
     draw_background(renderer);
     
-    // moving blue rectangle
-    SDL_Rect r;
-    r.x = ctx->iteration % 255;
-    r.y = 50;
-    r.w = 50;
-    r.h = 50;
-    Color color {0, 0, 255, 255};
-    SDL_SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha);
-    SDL_RenderDrawRect(renderer, &r);
-
-    SDL_RenderPresent(renderer);
+    // draw pixels
+    draw_cells(renderer);
+    
+    // update cell states 
 
     ctx->iteration++;
 }
