@@ -32,13 +32,13 @@ const int cell_height_num = 10;
 std::vector<std::vector<int>> tile = {
     {0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
     {0, 1, 0, 0, 0, 0, 0, 1, 0, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+    {0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
     {0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 1, 0},
-    {0, 1, 0, 0, 0, 0, 0, 1, 1, 0},
+    {0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 1, 1, 0, 0, 1, 0},
+    {0, 1, 0, 0, 0, 1, 0, 1, 1, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
@@ -106,7 +106,7 @@ bool is_rule1(const int i, const int j) {
         alive_count += at(i + direction.x, j + direction.y);
     }
 
-    if(alive_count == 3) {
+    if(alive_count == 3 && tile[i][j] == 0) {
         return true;
     } else {
         return false;
@@ -120,33 +120,11 @@ bool is_rule2(const int i, const int j) {
     }
 
     if(alive_count == 2 || alive_count == 3) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool is_rule3(const int i, const int j) {
-    int alive_count = 0;
-    for(auto direction : directions) {
-        alive_count += at(i + direction.x, j + direction.y);
-    }
-
-    if(alive_count < 2) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool is_rule4(const int i, const int j) {
-    int alive_count = 0;
-    for(auto direction : directions) {
-        alive_count += at(i + direction.x, j + direction.y);
-    }
-
-    if(alive_count >= 4) {
-        return true;
+        if(tile[i][j] == 1) {
+            return true;
+        } else {
+            return false;
+        }
     } else {
         return false;
     }
@@ -174,13 +152,9 @@ int dead_or_alive(const int i, const int j)
     **/
     if(is_rule1(i, j) || is_rule2(i, j)) {
         return 1;
-    }
-
-    if(is_rule3(i, j) || is_rule4(i, j)) {
+    } else {
         return 0;
     }
-    
-    return 0;
 }
 
 void update_cells()
